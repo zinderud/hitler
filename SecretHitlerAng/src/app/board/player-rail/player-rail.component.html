@@ -1,0 +1,30 @@
+<div class="player-rail">
+  <div class="players-list">
+    <div class="player" *ngFor="let i of [0,1,2,3,4,5,6,7,8,9]"
+         [class]="getPlayerStatus(i)">
+      <div class="player-avatar">
+        <div class="status-icon">
+          <ng-container [ngSwitch]="getPlayerStatus(i)">
+            <span *ngSwitchCase="'president'">👑</span>
+            <span *ngSwitchCase="'chancellor'">🎓</span>
+            <span *ngSwitchCase="'dead'">💀</span>
+            <span *ngSwitchCase="'disconnected'">❌</span>
+            <span *ngSwitchDefault>👤</span>
+          </ng-container>
+        </div>
+      </div>
+      <div class="player-name">{{ getPlayerName(i) }}</div>
+    </div>
+  </div>
+
+  <div class="game-status" *ngIf="state.type === 'board'">
+    <div class="status-item">
+      <span class="label">Deste:</span>
+      <span class="value">{{ getDeckSize() }}</span>
+    </div>
+    <div class="status-item">
+      <span class="label">Seçim:</span>
+      <span class="value">{{ getElectionTracker() }}</span>
+    </div>
+  </div>
+</div> 

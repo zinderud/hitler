@@ -1,0 +1,122 @@
+.executive-action {
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 500px;
+}
+
+.title {
+  font-size: 36px;
+  color: #e74c3c;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #bdc3c7;
+  margin-bottom: 40px;
+}
+
+.content {
+  margin-top: 30px;
+}
+
+.chosen-player {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.player-name {
+  font-size: 28px;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.player-icon {
+  font-size: 48px;
+  margin-top: 20px;
+}
+
+.timeout-warning {
+  background: rgba(231, 76, 60, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  animation: pulse 1s infinite;
+}
+
+.warning-icon {
+  font-size: 24px;
+}
+
+.warning-text {
+  font-size: 20px;
+  color: #e74c3c;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.executive-action[data-type="peek"] .action-icon { color: #3498db; }
+.executive-action[data-type="investigate"] .action-icon { color: #2ecc71; }
+.executive-action[data-type="special-election"] .action-icon { color: #f1c40f; }
+.executive-action[data-type="execute"] .action-icon { color: #e74c3c; }
+
+.title {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #ffaa33;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 40px;
+}
+
+.player {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.chosen {
+  font-size: 20px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.name {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ffaa33;
+} 

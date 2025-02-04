@@ -1,0 +1,20 @@
+<app-scene>
+  <div class="executive-action">
+    <h2 class="title">{{ title }}</h2>
+    <div class="subtitle">{{ subtitle }}</div>
+
+    <div class="player-info" *ngIf="chosenPlayer !== undefined">
+      <div class="name">{{ player }}</div>
+    </div>
+
+    <div class="action-buttons" *ngIf="!showTimeout">
+      <div class="player-list">
+        <div class="player-icon" [ngSwitch]="actionType">
+          <span *ngSwitchCase="'investigate'">🔍</span>
+          <span *ngSwitchCase="'special_election'">👑</span>
+          <span *ngSwitchCase="'execution'">💀</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-scene> 

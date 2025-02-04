@@ -1,0 +1,58 @@
+<app-scene>
+  <h1 class="title">Election</h1>
+  
+  <div class="government">
+    <div class="role">
+      <img src="assets/president.png" alt="President" />
+      <div class="name" [class.hidden]="!showPresident">
+        {{ election.president }}
+      </div>
+    </div>
+    
+    <div class="role">
+      <img src="assets/chancellor.png" alt="Chancellor" />
+      <div class="name" [class.hidden]="!showChancellor">
+        {{ election.chancellor }}
+      </div>
+    </div>
+  </div>
+
+  <div class="vote-now" [class.show]="showVoting">
+    Vote now!
+  </div>
+
+  <div class="vote-result" *ngIf="election.outcome !== undefined">
+    <div [class.ja]="election.outcome" [class.nein]="!election.outcome">
+      {{ election.outcome ? 'JA!' : 'NEIN!' }}
+    </div>
+  </div>
+
+  <div class="election">
+    <h2>Hükümet Seçimi</h2>
+    
+    <div class="candidates">
+      <div class="candidate president">
+        <div class="role">Başkan</div>
+        <div class="name">{{ getPlayerName(president) }}</div>
+        <div class="icon">👑</div>
+      </div>
+      
+      <div class="divider">ve</div>
+      
+      <div class="candidate chancellor">
+        <div class="role">Şansölye</div>
+        <div class="name">{{ getPlayerName(chancellor) }}</div>
+        <div class="icon">🎓</div>
+      </div>
+    </div>
+
+    <div class="vote-buttons">
+      <button class="vote-button ja" (click)="vote(true)">
+        <span class="vote-text">Ja!</span>
+      </button>
+      <button class="vote-button nein" (click)="vote(false)">
+        <span class="vote-text">Nein!</span>
+      </button>
+    </div>
+  </div>
+</app-scene> 

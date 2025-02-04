@@ -1,0 +1,34 @@
+<app-scene>
+  <h1 class="title">Legislative Session</h1>
+  
+  <div class="legislative-session">
+    <h2>Yasama Oturumu</h2>
+
+    <div class="government">
+      <div class="official president">
+        <div class="role">Başkan</div>
+        <div class="name">{{ getPlayerName(president) }}</div>
+        <div class="icon">👑</div>
+      </div>
+
+      <div class="official chancellor">
+        <div class="role">Şansölye</div>
+        <div class="name">{{ getPlayerName(chancellor) }}</div>
+        <div class="icon">🎓</div>
+      </div>
+    </div>
+
+    <div class="phase-message">
+      <div class="current-actor">{{ getCurrentActor() }}</div>
+      <div class="message">{{ getPhaseMessage() }}</div>
+    </div>
+
+    <div class="policy-selection">
+      <ng-container *ngFor="let policy of selectedPolicies">
+        <div class="policy-card" [class]="policy.toLowerCase()">
+          {{ policy }}
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</app-scene> 

@@ -1,0 +1,125 @@
+<div class="content">
+  <ng-container *ngIf="gameState?.type === 'board'">
+    <div class="board" [class.fade]="shouldFadeBoard()">
+      <ng-container *ngFor="let party of getParties()">
+        <app-policy-tracker 
+          [party]="party"
+          [numPlayers]="getNumPlayers()"
+          [scale]="getScale()">
+        </app-policy-tracker>
+        
+        <ng-container *ngFor="let i of getNumPolicies(party)">
+          <app-policy-card
+            [party]="party"
+            [position]="getCardPosition(party, i)"
+            [scale]="getScale()">
+          </app-policy-card>
+        </ng-container>
+      </ng-container>
+
+      <app-card-reveal
+        *ngIf="getCardReveal()"
+        [reveal]="getCardReveal()"
+        [scale]="getScale()"
+        (done)="onCardRevealDone()">
+      </app-card-reveal>
+    </div>
+  </ng-container>
+
+  <!-- Modal Components -->
+  <app-lobby 
+    *ngIf="gameState?.type === 'lobby'"
+    [gameId]="getLobbyGameId()">
+  </app-lobby>
+
+  <app-night-round
+    *ngIf="isPrompt('Night')">
+  </app-night-round>
+
+  <app-election
+    *ngIf="getElection()"
+    [president]="getElection()?.president"
+    [chancellor]="getElection()?.chancellor"
+    [outcome]="getElection()?.outcome"
+    (done)="onElectionDone()">
+  </app-election>
+
+  <app-legislative-session
+    *ngIf="getLegislativeSession()"
+    [president]="getLegislativeSession()?.president"
+    [chancellor]="getLegislativeSession()?.chancellor"
+    [phase]="getLegislativeSession()?.phase"
+    (done)="onLegislativeDone()">
+  </app-legislative-session>
+
+  <app-executive-action
+    *ngIf="isPrompt('ExecutiveAction')"
+    [chosenPlayer]="getChosenPlayer()"
+    (done)="onExecutiveActionDone()">
+  </app-executive-action>
+
+  <app-communist-session
+    *ngIf="isPrompt(['CommunistSession', 'FiveYearPlan', 'Confession'])"
+    [type]="getCommunistSessionType()"
+    [phase]="getCommunistSessionPhase()">
+  </app-communist-session>
+
+  <app-game-over
+    *ngIf="isPrompt('GameOver')"
+    [result]="getGameOverResult()">
+  </app-game-over>
+
+  <div *ngIf="gameState?.type === 'connecting'" class="connecting">
+    Connecting to game...
+  </div>
+</div>
+
+<div class="board-content" [class.active]="isGameActive()">
+  <div class="policy-boards">
+    <div class="policy-board liberal">
+      <h3>Liberal Politikalar</h3>
+      <div class="policy-track">
+        <div class="policy-slot" *ngFor="let i of [0,1,2,3,4]"
+             [class.filled]="i < liberalPolicies">
+          <div class="policy-card liberal" *ngIf="i < liberalPolicies">
+            <span class="policy-icon">⚖️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="policy-board fascist">
+      <h3>Faşist Politikalar</h3>
+      <div class="policy-track">
+        <div class="policy-slot" *ngFor="let i of [0,1,2,3,4,5]"
+             [class.filled]="i < fascistPolicies">
+          <div class="policy-card fascist" *ngIf="i < fascistPolicies">
+            <span class="policy-icon">⚡</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="policy-board communist">
+      <h3>Komünist Politikalar</h3>
+      <div class="policy-track">
+        <div class="policy-slot" *ngFor="let i of [0,1,2,3,4]"
+             [class.filled]="i < communistPolicies">
+          <div class="policy-card communist" *ngIf="i < communistPolicies">
+            <span class="policy-icon">☭</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="election-tracker">
+    <div class="tracker-slots">
+      <div class="tracker-slot" *ngFor="let i of [0,1,2]"
+           [class.active]="i < electionTracker">
+        {{ i + 1 }}
+      </div>
+    </div>
+    <div class="tracker-label">Seçim Takibi</div>
+  </div>
+</div> 

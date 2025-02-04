@@ -1,0 +1,63 @@
+.policy-tracker {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  transform-origin: center top;
+}
+
+.party-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.party-icon {
+  font-size: 32px;
+}
+
+.party-name {
+  font-size: 24px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.policy-slots {
+  display: flex;
+  gap: 10px;
+}
+
+.slot {
+  width: 60px;
+  height: 90px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  position: relative;
+}
+
+.action-text {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Party-specific styles */
+.liberal {
+  border-color: #3498db;
+  .party-name { color: #3498db; }
+}
+
+.fascist {
+  border-color: #e74c3c;
+  .party-name { color: #e74c3c; }
+}
+
+.communist {
+  border-color: #cc0000;
+  .party-name { color: #cc0000; }
+} 

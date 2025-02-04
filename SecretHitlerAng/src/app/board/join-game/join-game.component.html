@@ -1,0 +1,38 @@
+<div class="join-game">
+  <h1>Hitler Oyunu</h1>
+  
+  <div class="form-group">
+    <input type="text" 
+           [(ngModel)]="playerName" 
+           placeholder="Oyuncu Adınız"
+           maxlength="20"
+           class="input-field">
+  </div>
+
+  <div class="form-group">
+    <button class="action-button create" (click)="createGame()">
+      Yeni Oyun Oluştur
+    </button>
+  </div>
+
+  <div class="separator">
+    <span>veya</span>
+  </div>
+
+  <div class="form-group">
+    <input type="text" 
+           [(ngModel)]="gameId" 
+           placeholder="Oyun ID"
+           class="input-field">
+  </div>
+
+  <div class="form-group">
+    <button class="action-button join" (click)="joinGame()">
+      Oyuna Katıl
+    </button>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+  </div>
+</div> 

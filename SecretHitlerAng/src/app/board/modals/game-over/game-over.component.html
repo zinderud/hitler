@@ -1,0 +1,20 @@
+<app-scene>
+  <div class="game-over" [class]="outcome">
+    <div class="content">
+      <div class="winner-icon" [ngSwitch]="outcome">
+        <span *ngSwitchCase="'liberal'" class="liberal">⚖️</span>
+        <span *ngSwitchCase="'fascist'" class="fascist">⚡</span>
+        <span *ngSwitchCase="'communist'" class="communist">☭</span>
+        <span *ngSwitchCase="'hitler'" class="hitler">👑</span>
+        <span *ngSwitchCase="'hitler_killed'" class="killed">💀</span>
+      </div>
+      <div class="winner-message">
+        {{ outcome === 'victory' ? 'Zafer!' : 'Yenilgi!' }}
+      </div>
+    </div>
+
+    <div class="confetti-container">
+      <div class="confetti" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div>
+    </div>
+  </div>
+</app-scene> 

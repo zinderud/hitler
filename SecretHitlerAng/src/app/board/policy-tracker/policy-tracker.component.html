@@ -1,0 +1,14 @@
+<div class="policy-tracker" [class]="getPartyClass()" [style.transform]="'scale(' + scale + ')'">
+  <div class="party-header">
+    <div class="party-icon">{{ getPartyIcon() }}</div>
+    <h3 class="party-name">{{ party }}</h3>
+  </div>
+
+  <div class="policy-slots">
+    <div class="slot" *ngFor="let i of getSlots()">
+      <div class="action-text" *ngIf="getActionText(i)">
+        {{ getActionText(i) }}
+      </div>
+    </div>
+  </div>
+</div> 

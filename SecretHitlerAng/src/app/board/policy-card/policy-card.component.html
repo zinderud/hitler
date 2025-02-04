@@ -1,0 +1,12 @@
+<div class="policy-card" 
+     [class]="getPartyClass()"
+     [class.revealed]="isRevealed"
+     [ngStyle]="getStyles()">
+  <div class="card-front">
+    <div class="party-icon">{{ getPartyIcon() }}</div>
+    <div class="party-name">{{ party }}</div>
+  </div>
+  <div class="card-back">
+    <div class="back-pattern"></div>
+  </div>
+</div> 

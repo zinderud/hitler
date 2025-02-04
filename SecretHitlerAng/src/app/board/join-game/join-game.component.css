@@ -1,0 +1,185 @@
+.join-form {
+  width: 85%;
+  max-width: 320px;
+  margin: 60px auto;
+}
+
+.row {
+  margin: 15px 0;
+}
+
+label {
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+input[type="text"] {
+  background-color: #444;
+  color: white;
+  border: 2px solid #ccc;
+  font-size: 18px;
+  padding: 8px 12px;
+  line-height: 24px;
+  border-radius: 6px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+  border: 2px solid #ffaa33;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background: white;
+  color: black;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.yellow {
+  background: #ffaa33;
+}
+
+.or {
+  display: flex;
+  margin: 32px 0;
+  text-align: center;
+  align-items: center;
+}
+
+.or span {
+  margin: 0 12px 3px;
+  font-weight: bold;
+  color: white;
+}
+
+.or::before, .or::after {
+  display: block;
+  content: "";
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  flex: 1 1 0;
+}
+
+.error {
+  color: #ff4444;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.join-game {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 320px;
+}
+
+h1 {
+  margin: 0 0 30px;
+  color: #fff;
+  font-size: 32px;
+  text-transform: uppercase;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.input-field:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.action-button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-button.create {
+  background-color: #3498db;
+  color: white;
+}
+
+.action-button.create:hover {
+  background-color: #2980b9;
+}
+
+.action-button.join {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.action-button.join:hover {
+  background-color: #c0392b;
+}
+
+.separator {
+  margin: 20px 0;
+  position: relative;
+  text-align: center;
+}
+
+.separator span {
+  background: rgba(0, 0, 0, 0.8);
+  color: #999;
+  padding: 0 10px;
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.separator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 20px;
+} 

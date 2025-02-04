@@ -1,0 +1,10 @@
+<div class="card-reveal" [style.transform]="'scale(' + scale + ')'">
+  <ng-container *ngFor="let policy of policies; let i = index">
+    <app-policy-card
+      [party]="policy"
+      [position]="getPosition(i)"
+      [scale]="1"
+      [isRevealed]="currentIndex >= i && !isRevealing">
+    </app-policy-card>
+  </ng-container>
+</div> 

@@ -1,0 +1,31 @@
+<div class="communist-session">
+  <div class="hammer-sickle">☭</div>
+  <h2 class="title">{{ getPhaseMessage() }}</h2>
+  <div class="description">{{ getPhaseDescription() }}</div>
+
+  <div class="session-content">
+    <div class="red-star">★</div>
+    <div class="phase-indicator">
+      <div class="phase-dot" [class.active]="phase === 'fiveYearPlan'"></div>
+      <div class="phase-dot" [class.active]="phase === 'confession'"></div>
+      <div class="phase-dot" [class.active]="phase === 'cardReveal'"></div>
+    </div>
+  </div>
+</div>
+
+<app-scene>
+  <div class="communist-session">
+    <div class="hammer-sickle">☭</div>
+    <h2 class="title">{{ getMessage() }}</h2>
+    <div class="description">{{ type }}</div>
+
+    <div class="session-content">
+      <div class="red-star">★</div>
+      <div class="phase-indicator">
+        <div class="phase-dot" [class.active]="phase === 'fiveYearPlan'"></div>
+        <div class="phase-dot" [class.active]="phase === 'confession'"></div>
+        <div class="phase-dot" [class.active]="phase === 'cardReveal'"></div>
+      </div>
+    </div>
+  </div>
+</app-scene> 

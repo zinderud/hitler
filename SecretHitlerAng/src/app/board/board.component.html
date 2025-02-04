@@ -1,0 +1,86 @@
+<div class="board-container">
+  <!-- Bağlantı Durumu -->
+  <div *ngIf="isConnecting" class="connecting">
+    <div class="spinner"></div>
+    <h2>Oyuna Bağlanılıyor...</h2>
+  </div>
+
+  <!-- Lobi -->
+  <app-join-game *ngIf="!isConnecting && !isBoard"></app-join-game>
+  <app-lobby *ngIf="isLobby" [gameId]="lobbyGameId"></app-lobby>
+
+  <!-- Oyun Tahtası -->
+  <ng-container >
+    <div class="board-header">
+      <div class="tracker-container">
+        <div class="election-tracker">
+          <h3>Seçim Takibi</h3>
+          <div class="tracker-value">{{ electionTracker }}</div>
+        </div>
+        <div class="deck-size">
+          <h3>Deste</h3>
+          <div class="tracker-value">{{ deckSize }}</div>
+        </div>
+      </div>
+      
+      <div class="policy-trackers">
+        <div class="policy-tracker liberal">
+          <h3>Liberal</h3>
+          <div class="policy-count">{{ liberalPolicies }}</div>
+        </div>
+        <div class="policy-tracker fascist">
+          <h3>Faşist</h3>
+          <div class="policy-count">{{ fascistPolicies }}</div>
+        </div>
+        <div class="policy-tracker communist">
+          <h3>Komünist</h3>
+          <div class="policy-count">{{ communistPolicies }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-content">
+      <app-board-content></app-board-content>
+    </div>
+
+    <div class="player-rail">
+      <app-player-rail></app-player-rail>
+    </div>
+
+    <!-- Modal Bileşenleri -->
+    <app-scene>
+      <app-night-round *ngIf="showNightRound">
+      </app-night-round>
+
+      <app-election 
+        *ngIf="showElection"
+        [president]="currentPrompt?.president"
+        [chancellor]="currentPrompt?.chancellor">
+      </app-election>
+
+      <app-legislative-session
+        *ngIf="showLegislativeSession"
+        [president]="currentPrompt?.president"
+        [chancellor]="currentPrompt?.chancellor"
+        [phase]="currentPrompt?.phase">
+      </app-legislative-session>
+
+      <app-executive-action
+        *ngIf="showExecutiveAction"
+        [type]="currentPrompt?.type"
+        [chosenPlayer]="currentPrompt?.chosen_player">
+      </app-executive-action>
+
+      <app-communist-session
+        *ngIf="showCommunistSession"
+        [type]="currentPrompt?.type"
+        [phase]="currentPrompt?.phase">
+      </app-communist-session>
+
+      <app-game-over
+        *ngIf="showGameOver"
+        [result]="currentPrompt?.result">
+      </app-game-over>
+    </app-scene>
+  </ng-container>
+</div> 

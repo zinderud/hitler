@@ -1,0 +1,22 @@
+<div class="lobby">
+  <h2>Oyun Lobisi</h2>
+  
+  <div class="game-info">
+    <div class="game-id">
+      Oyun ID: 
+      <span class="id-value">{{ gameId }}</span>
+      <button class="copy-button" (click)="copyGameId()">
+        📋 Kopyala
+      </button>
+    </div>
+    
+    <div class="player-count">
+      Oyuncular: {{ getConnectedPlayers() }}/{{ getTotalPlayers() }}
+    </div>
+  </div>
+
+  <div class="instructions">
+    <p>Oyuna katılmak için diğer oyunculara Oyun ID'sini gönderin.</p>
+    <p>Oyun {{ getTotalPlayers() }} oyuncu ile başlayacak.</p>
+  </div>
+</div> 

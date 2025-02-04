@@ -1,0 +1,143 @@
+.election {
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 500px;
+}
+
+h2 {
+  font-size: 32px;
+  color: #f1c40f;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+.candidates {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.candidate {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 180px;
+}
+
+.role {
+  font-size: 18px;
+  color: #bdc3c7;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.name {
+  font-size: 24px;
+  color: white;
+  margin-bottom: 15px;
+  word-break: break-word;
+}
+
+.icon {
+  font-size: 36px;
+}
+
+.vote-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.vote-button {
+  padding: 15px 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.vote-button.ja {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.vote-button.ja:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+.vote-button.nein {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.vote-button.nein:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.vote-text {
+  display: inline-block;
+  transform: skew(-10deg);
+}
+
+.title {
+  font-size: 48px;
+  margin-bottom: 40px;
+  color: #ffaa33;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.government {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-bottom: 40px;
+}
+
+.role img {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+}
+
+.name.hidden {
+  opacity: 0;
+}
+
+.vote-now {
+  font-size: 36px;
+  color: #ffaa33;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s;
+}
+
+.vote-now.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vote-result {
+  font-size: 72px;
+  font-weight: bold;
+  margin-top: 40px;
+}
+
+.ja {
+  color: #44ff44;
+  transform: rotate(-12deg);
+}
+
+.nein {
+  color: #ff4444;
+  transform: rotate(8deg);
+} 
