@@ -1,40 +1,39 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize}; // Serde kütüphanesinden Deserialize ve Serialize traitlerini içe aktarır, struct'ı serileştirmek ve serileştirmeyi kaldırmak için kullanılır.
+use super::MAX_PLAYERS; // Üst modülden MAX_PLAYERS sabitini içe aktarır.
 
-use super::MAX_PLAYERS;
-
-/// Tracks the acknowledgement status of each player,
-/// such that game play can only proceed once all players have elected to move on.
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+// Her oyuncunun onay durumunu takip eden struct,
+// böylece tüm oyuncular ilerlemeyi seçene kadar oyun devam edemez.
+#[derive(Clone, Copy, Serialize, Deserialize, Debug)] // Struct'a clone, copy, serialize, deserialize ve debug özelliklerini kazandırır.
 pub struct Confirmations {
-    num_players: usize,
-    state: [bool; MAX_PLAYERS],
+    num_players: usize, // Oyun ilerlemesi için gereken oyuncu sayısını tutar.
+    state: [bool; MAX_PLAYERS], // Her oyuncunun onay durumunu takip eden bir dizi.
 }
 
 impl Confirmations {
-    /// Creates a new `Confirmations`,
-    /// where `num_players` is the number of confirmations needed to proceed.
+    // Yeni bir `Confirmations` struct'ı oluşturur,
+    // `num_players` ise ilerlemek için gereken onay sayısını belirler.
     pub fn new(num_players: usize) -> Self {
-        let state = [false; MAX_PLAYERS];
-        Self { num_players, state }
+        let state = [false; MAX_PLAYERS]; // Durum dizisini false ile başlatır, yani hiçbir oyuncu henüz onaylamamış.
+        Self { num_players, state } // Yeni bir Confirmations örneği döner.
     }
 
-    /// Returns whether or not the given player has registered their acknowledgement.
+    // Verilen oyuncunun onay kaydını yapıp yapmadığını döner.
     pub fn has_confirmed(&self, player_idx: usize) -> bool {
-        self.state[player_idx]
+        self.state[player_idx] // Verilen oyuncunun onay durumunu döner.
     }
 
-    /// Records the acknowledgement of a player, and returns `true` iff the game can now proceed.
+    // Bir oyuncunun onayını kaydeder ve yalnızca oyun şimdi ilerleyebiliyorsa `true` döner.
     pub fn confirm(&mut self, player_idx: usize) -> bool {
-        self.state[player_idx] = true;
-        self.can_proceed()
+        self.state[player_idx] = true; // Verilen oyuncunun onay durumunu true olarak ayarlar.
+        self.can_proceed() // Oyunun şimdi ilerleyip ilerleyemeyeceğini kontrol eder ve döner.
     }
 
-    /// Returns `true` iff the game can now proceed.
+    // Oyun şimdi ilerleyebiliyorsa `true` döner.
     pub fn can_proceed(&self) -> bool {
-        if std::env::var("QUICK_MODE").is_ok() {
-            self.state.iter().any(|c| *c)
+        if std::env::var("QUICK_MODE").is_ok() { // QUICK_MODE ortam değişkeni ayarlanmışsa kontrol eder.
+            self.state.iter().any(|c| *c) // QUICK_MODE'da, en az bir oyuncu onayladıysa oyun ilerleyebilir.
         } else {
-            self.state.iter().filter(|c| **c).count() >= self.num_players
+            self.state.iter().filter(|c| **c).count() >= self.num_players // Aksi takdirde, oyun yalnızca onay sayısı num_players'a eşit veya büyükse ilerler.
         }
     }
 }

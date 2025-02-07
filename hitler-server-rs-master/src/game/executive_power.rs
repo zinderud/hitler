@@ -1,29 +1,29 @@
-use super::{player::Role, Game, GameState, NextPresident};
+use super::{player::Role, Game, GameState, NextPresident}; // player, Game, GameState ve NextPresident modüllerini dahil et
 use crate::{
-    error::GameError,
-    game::{confirmations::Confirmations, eligible::EligiblePlayers, government::Government},
+    error::GameError, // GameError modülünü dahil et
+    game::{confirmations::Confirmations, eligible::EligiblePlayers, government::Government}, // game modülünün confirmations, eligible ve government alt modüllerini dahil et
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize}; // Serde'nin Deserialize ve Serialize trait'lerini dahil et
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum ExecutiveAction {
-    /// The president must investigate a player's loyalty.
+    /// Başkan bir oyuncunun sadakatini araştırmak zorundadır.
     InvestigatePlayer,
-    /// The president must call a special election.
+    /// Başkan özel bir seçim çağrısı yapmak zorundadır.
     SpecialElection,
-    /// The president must peek at the top three cards on the deck.
+    /// Başkan destedeki ilk üç kartı görmek zorundadır.
     PolicyPeak,
-    /// The president must execute a player.
+    /// Başkan bir oyuncuyu idam etmek zorundadır.
     Execution,
-    /// The communists learn the party membership of one player.
+    /// Komünistler bir oyuncunun parti üyeliğini öğrenir.
     Bugging,
-    /// The communists attempt to convert one player to the communist team.
+    /// Komünistler bir oyuncuyu komünist ekibe dönüştürmeye çalışır.
     Radicalisation,
-    /// 2 communist and 1 liberal policy are shuffled into the deck.
+    /// 2 komünist ve 1 liberal politika desteye karıştırılır.
     FiveYearPlan,
-    /// The new communist learns who their allies are, or another radicalisation is attempted.
+    /// Yeni komünist müttefiklerini öğrenir veya başka bir radikalleşme denemesi yapılır.
     Congress,
-    /// The president or chancellor reveals their party membership.
+    /// Başkan veya şansölye partilerini açıklar.
     Confession,
 }
 
@@ -51,67 +51,66 @@ pub enum ConfessionChoice {
 }
 
 impl Game {
-    /// Begins an executive action.
+    /// Bir icra eylemi başlatır.
     pub fn start_executive_action(&mut self, action: ExecutiveAction) {
         use ExecutiveAction::*;
 
-        // There must have been a last government for an executive power to be played
+        // Bir icra gücü oynanabilmesi için son bir hükümet olmalıdır
         let Government { president, chancellor } = self.last_government.unwrap();
 
         match action {
             InvestigatePlayer => {
                 self.state = GameState::ChoosePlayer {
-                    action,
-                    can_select: EligiblePlayers::only_one(president),
-                    can_be_selected: self.eligible_players().not_investigated().exclude(president).make(),
+                    action, // Eylem türünü belirle
+                    can_select: EligiblePlayers::only_one(president), // Sadece başkan seçebilir
+                    can_be_selected: self.eligible_players().not_investigated().exclude(president).make(), // Başkan hariç araştırılmamış olanlar seçilebilir
                 };
             }
             SpecialElection => {
-                // Note: We still want to "wait for the monarchist" even if they're dead,
-                // so as to not reveal any information to other players.
-                let monarchist = self.players.iter().position(|p| p.role == Role::Monarchist);
+                // Not: Diğer oyunculara bilgi vermemek için, ölü olsalar bile "monarşisti beklemek" istiyoruz.
+                let monarchist = self.players.iter().position(|p| p.role == Role::Monarchist); // Monarşisti bul
                 if let Some(monarchist) = monarchist {
                     self.state = GameState::PromptMonarchist {
-                        monarchist,
-                        last_president: president,
-                        hijacked: false,
+                        monarchist, // Monarşist pozisyonu
+                        last_president: president, // Son başkan
+                        hijacked: false, // Kaçırılmadı
                     };
                 } else {
                     self.state = GameState::ChoosePlayer {
                         action,
-                        can_select: EligiblePlayers::only_one(president),
-                        can_be_selected: self.eligible_players().exclude(president).make(),
+                        can_select: EligiblePlayers::only_one(president), // Sadece başkan seçebilir
+                        can_be_selected: self.eligible_players().exclude(president).make(), // Başkan hariç herkes seçilebilir
                     };
                 }
             }
             Execution => {
                 self.state = GameState::ChoosePlayer {
                     action,
-                    can_select: EligiblePlayers::only_one(president),
-                    can_be_selected: self.eligible_players().exclude(president).make(),
+                    can_select: EligiblePlayers::only_one(president), // Sadece başkan seçebilir
+                    can_be_selected: self.eligible_players().exclude(president).make(), // Başkan hariç herkes seçilebilir
                 };
             }
             PolicyPeak | FiveYearPlan => {
                 self.state = GameState::ActionReveal {
                     action,
-                    chosen_player: None,
-                    confirmations: Confirmations::new(self.num_players_alive()),
+                    chosen_player: None, // Seçilen oyuncu yok
+                    confirmations: Confirmations::new(self.num_players_alive()), // Canlı oyuncu sayısına göre onaylar
                 };
             }
             Bugging | Radicalisation | Congress => {
-                self.state = GameState::CommunistStart { action };
+                self.state = GameState::CommunistStart { action }; // Komünist başlangıç durumu
             }
             Confession => {
                 self.state = GameState::ChoosePlayer {
                     action,
-                    can_select: EligiblePlayers::only_one(chancellor),
-                    can_be_selected: EligiblePlayers::only(&[president, chancellor]),
+                    can_select: EligiblePlayers::only_one(chancellor), // Sadece şansölye seçebilir
+                    can_be_selected: EligiblePlayers::only(&[president, chancellor]), // Sadece başkan ve şansölye seçilebilir
                 };
             }
         }
     }
 
-    /// Called when the board has finished entering a "communist session".
+    /// "Komünist oturum" başladığında çağrılır.
     pub fn end_communist_start(&mut self) -> Result<(), GameError> {
         use ExecutiveAction::*;
 
@@ -119,25 +118,25 @@ impl Game {
             return Err(GameError::InvalidAction);
         };
 
-        // If radicalisation succeeded, there's no second attempt during congress
+        // Radikalleşme başarılı olduysa, kongre sırasında ikinci bir deneme yapılmaz
         if action == Congress && self.radicalised {
             self.state = GameState::Congress;
             return Ok(());
         }
 
-        let can_select = self.eligible_players().ordinary_communist().make();
+        let can_select = self.eligible_players().ordinary_communist().make(); // Sadece sıradan komünistler seçebilir
 
-        let mut can_be_selected = self.eligible_players().can_radicalise();
+        let mut can_be_selected = self.eligible_players().can_radicalise(); // Radikalleşebilecek oyuncular
         if matches!(action, Radicalisation | Congress) {
-            can_be_selected = can_be_selected.not_investigated();
+            can_be_selected = can_be_selected.not_investigated(); // Araştırılmamış olanlar
         }
-        let can_be_selected = can_be_selected.make();
+        let can_be_selected = can_be_selected.make(); // Seçilebilir oyuncular
 
         self.state = GameState::ChoosePlayer { action, can_select, can_be_selected };
         Ok(())
     }
 
-    /// Called when a player is ready to end the congress session.
+    /// Bir oyuncu kongre oturumunu bitirmeye hazır olduğunda çağrılır.
     pub fn end_congress(&mut self, player: usize) -> Result<(), GameError> {
         let GameState::Congress = &self.state else {
             return Err(GameError::InvalidAction);
@@ -152,7 +151,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when the monarchist elects to hijack a special election.
+    /// Monarşist özel bir seçimi kaçırmayı seçtiğinde çağrılır.
     pub fn hijack_special_election(&mut self, player: usize) -> Result<(), GameError> {
         let GameState::PromptMonarchist { monarchist, hijacked, .. } = &mut self.state else {
             return Err(GameError::InvalidAction);
@@ -166,7 +165,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when the board has finished presenting the special election screen
+    /// Tahta özel seçim ekranını sunmayı bitirdiğinde çağrılır.
     pub fn start_special_election(&mut self) -> Result<(), GameError> {
         let GameState::PromptMonarchist { monarchist, last_president, hijacked } = self.state else {
             return Err(GameError::InvalidAction);
@@ -178,14 +177,14 @@ impl Game {
         } else {
             self.state = GameState::ChoosePlayer {
                 action: ExecutiveAction::SpecialElection,
-                can_select: EligiblePlayers::only_one(last_president),
-                can_be_selected: self.eligible_players().exclude(last_president).make(),
+                can_select: EligiblePlayers::only_one(last_president), // Sadece son başkan seçebilir
+                can_be_selected: self.eligible_players().exclude(last_president).make(), // Son başkan hariç herkes seçilebilir
             };
         }
         Ok(())
     }
 
-    /// Called when the board has finished leaving a "communist session".
+    /// "Komünist oturum" bittiğinde çağrılır.
     pub fn end_communist_end(&mut self) -> Result<(), GameError> {
         use ExecutiveAction::*;
 
@@ -213,7 +212,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when the board has finished presenting the executive action.
+    /// Tahta icra eylemini sunmayı bitirdiğinde çağrılır.
     pub fn end_executive_action(&mut self, player: Option<usize>) -> Result<(), GameError> {
         use ExecutiveAction::*;
 
@@ -222,20 +221,20 @@ impl Game {
         };
 
         match action {
-            // Only the president may end these actions
+            // Bu eylemleri sadece başkan bitirebilir
             InvestigatePlayer | PolicyPeak => {
                 let president = self.last_government.unwrap().president;
                 if player != Some(president) {
                     return Err(GameError::InvalidAction);
                 }
             }
-            // Only the board may end these actions
+            // Bu eylemleri sadece tahta bitirebilir
             SpecialElection | Execution | FiveYearPlan | Confession => {
                 if player.is_some() {
                     return Err(GameError::InvalidAction);
                 }
             }
-            // These actions are ended once all players are ready
+            // Bu eylemler, tüm oyuncular hazır olduğunda sona erer
             Bugging | Radicalisation | Congress => {
                 let Some(player) = player else {
                     return Err(GameError::InvalidAction);
@@ -249,30 +248,30 @@ impl Game {
 
         match action {
             InvestigatePlayer => {
-                self.players[chosen_player.unwrap()].investigated = true;
+                self.players[chosen_player.unwrap()].investigated = true; // Oyuncu araştırıldı olarak işaretlenir
                 self.start_round();
             }
             SpecialElection => {
                 let player = chosen_player.unwrap();
-                self.next_president = Some(NextPresident::Normal { player });
+                self.next_president = Some(NextPresident::Normal { player }); // Yeni başkan olarak atanır
                 self.start_round();
             }
             Execution => {
                 let player = &mut self.players[chosen_player.unwrap()];
-                player.alive = false;
-                player.not_hitler = player.role != Role::Hitler;
+                player.alive = false; // Oyuncu ölü olarak işaretlenir
+                player.not_hitler = player.role != Role::Hitler; // Oyuncu Hitler değilse işaretlenir
 
-                if self.check_game_over() {
+                if self.check_game_over() { // Oyun bitti mi kontrol edilir
                     return Ok(());
                 }
 
                 self.start_round();
             }
             Bugging => {
-                self.state = GameState::CommunistEnd { action: *action, chosen_player: None };
+                self.state = GameState::CommunistEnd { action: *action, chosen_player: None }; // Komünist bitiş durumu
             }
             FiveYearPlan => {
-                self.deck.five_year_plan(&mut self.rng);
+                self.deck.five_year_plan(&mut self.rng); // Beş Yıllık Plan desteye eklenir
                 self.start_round();
             }
             _ => {

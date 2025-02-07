@@ -16,35 +16,35 @@ mod ws;
 
 #[tokio::main]
 async fn main() {
-    dotenv::dotenv().ok();
-    env_logger::try_init().ok();
+    dotenv::dotenv().ok(); // .env dosyasını yükler
+    env_logger::try_init().ok(); // Logger'ı başlatır
 
     let port = std::env::var("PORT")
         .ok()
         .and_then(|s| s.parse::<u16>().ok())
         .unwrap_or(3000); // Varsayılan port 3000
 
-    // Bind to the socket
+    // Socket'e bağlanma
     let addr = SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), port);
     let listener = TcpListener::bind(addr).await.unwrap_or_else(|err| {
-        log::error!("Could not bind to address {:?}: {:?}", addr, err);
+        log::error!("Adrese bağlanamadı {:?}: {:?}", addr, err);
         std::process::exit(1)
     });
-    log::info!("Listening on: {:?}", addr);
+    log::info!("Dinleniyor: {:?}", addr);
 
     let db = sled::open("data").unwrap_or_else(|err| {
-        log::error!("Could not open database: {:?}", err);
+        log::error!("Veritabanı açılamadı: {:?}", err);
         std::process::exit(1)
     });
 
-    // Create the session manager
+    // Oturum yöneticisini oluşturma
     let manager = create_session_manager(db.clone()).unwrap_or_else(|err| {
-        log::error!("Could not create session manager: {:?}", err);
+        log::error!("Oturum yöneticisi oluşturulamadı: {:?}", err);
         std::process::exit(1)
     });
-    log::info!("Created session manager. Loaded {} games.", manager.num_games());
+    log::info!("Oturum yöneticisi oluşturuldu. Yüklenen oyun sayısı: {}.", manager.num_games());
 
-    // Spin up background task to clean up old games
+    // Eski oyunları temizlemek için arka planda çalışan görev
     tokio::spawn(async {
         loop {
             tokio::task::spawn_blocking(|| manager.purge_games());
@@ -52,18 +52,18 @@ async fn main() {
         }
     });
 
-    // API server
+    // API sunucusu
     if let Some(port) = std::env::var("API_PORT").ok().and_then(|s| s.parse::<u16>().ok()) {
         tokio::spawn(async move {
             let router = api::make_router(manager).await;
             let listener = api::listen(port).await;
             axum::serve(listener, router).await.unwrap_or_else(|err| {
-                log::error!("Could not start API server: {}", err);
+                log::error!("API sunucusu başlatılamadı: {}", err);
             });
         });
     }
 
-    // Accept connections
+    // Bağlantıları kabul etme
     while let Ok((stream, _)) = listener.accept().await {
         tokio::spawn(accept_connection(stream, manager));
     }

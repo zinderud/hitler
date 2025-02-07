@@ -1,167 +1,235 @@
+// Tahta modülünü kullan
 use self::board::Board;
+// Deste modülünü kullan
 use self::deck::Deck;
+// Uygun Oyuncular modülünü kullan
 use self::eligible::EligiblePlayers;
+// Yürütme Eylemi modülünü kullan
 use self::executive_power::ExecutiveAction;
+// Oyun Seçenekleri modülünü kullan
 pub use self::options::GameOptions;
+// Parti modülünü kullan
 use self::party::Party;
+// Oyuncu ve Rol modülünü kullan, rolleri ata fonksiyonunu kullan
 use self::player::{assign_roles, Player, Role};
+// Güncelleme modülünü kullan
 pub use self::update::*;
+// Oylar ve Monarşist Oylar modülünü kullan
 use self::votes::{MonarchistVotes, Votes};
+// Onaylar ve Hükümet modüllerini kullan
 use self::{confirmations::Confirmations, government::Government};
+// Oyun Hatası modülünü kullan
 use crate::error::GameError;
+// Oyuncuların bitişik olup olmadığını kontrol eden fonksiyonu kullan
 use crate::game::adjacent::players_are_adjacent;
+// Soruşturma Sonucu modülünü kullan
 use crate::game::player::InvestigationResult;
+// Rastgele sayı üreticisini kullan
 use rand::{Rng, SeedableRng};
+// Serde kütüphanesini kullanarak serileştirme ve seriden çıkarma işlemlerini yap
 use serde::{Deserialize, Serialize};
 
+// Bitişik modülünü dahil et
 mod adjacent;
+// Tahta modülünü dahil et
 mod board;
+// Onaylar modülünü dahil et
 mod confirmations;
+// Deste modülünü dahil et
 mod deck;
+// Uygun Oyuncular modülünü dahil et
 mod eligible;
+// Yürütme Gücü modülünü dahil et
 mod executive_power;
+// Hükümet modülünü dahil et
 mod government;
+// Seçenekler modülünü dahil et
 mod options;
+// Parti modülünü dahil et
 mod party;
+// Oyuncu modülünü dahil et
 mod player;
+// Test modülünü dahil et
 mod test;
+// Güncelleme modülünü dahil et
 mod update;
+// Oylar modülünü dahil et
 mod votes;
 
+// Maksimum oyuncu sayısını tanımla
 pub const MAX_PLAYERS: usize = 16;
 
-/// A game of Secret Hitler.
+/// Gizli Hitler oyununun bir tanımı.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Game {
+    // Oyun seçenekleri
     opts: GameOptions,
+    // Oyuncular listesi
     players: Vec<Player>,
+    // Oyun tahtası
     board: Board,
+    // Oyun destesi
     deck: Deck,
+    // Oyun durumu
     state: GameState,
+    // Başkanın sırası
     presidential_turn: usize,
+    // Bir sonraki başkan
     next_president: Option<NextPresident>,
+    // Seçim takipçisi
     election_tracker: usize,
+    // Son hükümet
     last_government: Option<Government>,
+    // Radikalleşme durumu
     radicalised: bool,
+    // Suikast durumu
     assassination: AssassinationState,
+    // Rastgele sayı üreticisi
     rng: rand_chacha::ChaCha8Rng,
 }
 
+/// Bir sonraki başkanı temsil eden enum.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 enum NextPresident {
+    // Normal başkan
     Normal { player: usize },
+    // Monarşist başkan
     Monarchist { monarchist: usize, last_president: usize },
 }
 
-/// Represents the current phase in the game loop.
+/// Oyun döngüsündeki mevcut aşamayı temsil eden enum.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 enum GameState {
+    // Gece aşaması
     Night {
         confirmations: Confirmations,
     },
+    // Seçim aşaması
     Election {
         president: usize,
         chancellor: Option<usize>,
         eligible_chancellors: EligiblePlayers,
         votes: Votes,
     },
+    // Monarşist Seçim aşaması
     MonarchistElection {
-        /// The player who is the monarchist, and therefore the next president
+        // Monarşist olan oyuncu ve dolayısıyla bir sonraki başkan
         monarchist: usize,
-        /// The last president who unlocked the special election power
+        // Özel seçim gücünü açığa çıkaran son başkan
         last_president: usize,
-        /// The monarchist's choice for chancellor
+        // Monarşistin şansölye seçimi
         monarchist_chancellor: Option<usize>,
-        /// The last president's choice for chancellor
+        // Son başkanın şansölye seçimi
         president_chancellor: Option<usize>,
-        /// Players eligible to be selected as chancellor
+        // Şansölye olarak seçilebilecek oyuncular
         eligible_chancellors: EligiblePlayers,
-        /// Players' votes for the chancellor; the monarchist breaks ties
+        // Monarşistin bağları kırdığı oyuncuların oyları
         votes: MonarchistVotes,
     },
+    // Yasama oturumu aşaması
     LegislativeSession {
         president: usize,
         chancellor: usize,
         turn: LegislativeSessionTurn,
     },
+    // Kart açma aşaması
     CardReveal {
         result: Party,
         chaos: bool,
         confirmations: Confirmations,
         board_ready: bool,
     },
+    // Komünist başlangıç aşaması
     CommunistStart {
         action: ExecutiveAction,
     },
+    // Monarşisti yönlendirme aşaması
     PromptMonarchist {
         monarchist: usize,
         last_president: usize,
         hijacked: bool,
     },
+    // Oyuncu seçme aşaması
     ChoosePlayer {
         action: ExecutiveAction,
         can_select: EligiblePlayers,
         can_be_selected: EligiblePlayers,
     },
+    // Kongre aşaması
     Congress,
+    // Komünist bitiş aşaması
     CommunistEnd {
         action: ExecutiveAction,
         chosen_player: Option<usize>,
     },
+    // Eylem açığa çıkarma aşaması
     ActionReveal {
         action: ExecutiveAction,
         chosen_player: Option<usize>,
         confirmations: Confirmations,
     },
+    // Suikast aşaması
     Assassination {
         anarchist: usize,
         chosen_player: Option<usize>,
     },
+    // Oyun bitti durumu
     GameOver(WinCondition),
 }
 
+/// Yasama oturumu sırasını temsil eden enum.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 enum LegislativeSessionTurn {
-    /// President must discard a card.
+    // Başkan bir kart atmalıdır.
     President { cards: [Party; 3] },
-    /// Chancellor must discard a card.
+    // Şansölye bir kart atmalıdır.
     Chancellor { cards: [Party; 2], veto: VetoStatus },
-    /// Chancellor has called for a veto.
+    // Şansölye veto çağrısında bulunmuştur.
     VetoRequested { cards: [Party; 2] },
-    /// President has approved the veto.
+    // Başkan vetoyu onaylamıştır.
     VetoApproved,
 }
 
+/// Veto durumunu temsil eden enum.
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum VetoStatus {
+    // Veto edilemez
     CannotVeto,
+    // Veto edilebilir
     CanVeto,
+    // Veto reddedildi
     VetoDenied,
 }
 
+/// Suikast durumunu temsil eden enum.
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum AssassinationState {
+    // Kullanılmamış
     Unused,
+    // Aktive edilmiş
     Activated { anarchist: usize },
+    // Tamamlanmış
     Completed,
 }
 
+/// Kazanma koşulunu temsil eden enum.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum WinCondition {
-    /// The liberals completed their policy track.
+    // Liberaller politikalarını tamamladı.
     LiberalPolicyTrack,
-    /// The fascists completed their policy track.
+    // Faşistler politikalarını tamamladı.
     FascistPolicyTrack,
-    /// The communists completed their policy track.
+    // Komünistler politikalarını tamamladı.
     CommunistPolicyTrack,
-    /// Hitler was elected chancellor
+    // Hitler şansölye olarak seçildi
     HitlerChancellor,
-    /// Hitler was executed
+    // Hitler idam edildi
     HitlerExecuted,
-    /// The Capitalist was executed
+    // Kapitalist idam edildi
     CapitalistExecuted,
 }
 
+/// Kazanma koşulunun metin karşılığını döndüren fonksiyon.
 impl ToString for WinCondition {
     fn to_string(&self) -> String {
         match self {
@@ -176,12 +244,13 @@ impl ToString for WinCondition {
     }
 }
 
+/// Oyun yapısının fonksiyonları.
 impl Game {
-    /// Creates a new game of Secret Hitler.
+    /// Gizli Hitler oyunu oluşturur.
     pub fn new(opts: GameOptions, player_names: &[String], seed: u64) -> Result<Self, GameError> {
         let num_players = player_names.len();
 
-        // Generate the players and their roles
+        // Oyuncuları ve rollerini oluştur
         let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
         let roles = assign_roles(opts.player_distribution(num_players)?, &mut rng);
         let mut players = player_names
@@ -190,15 +259,15 @@ impl Game {
             .map(|(name, role)| Player::new(name.into(), role))
             .collect::<Vec<_>>();
 
-        // Reveal certain player roles/parties to other players
+        // Belirli oyuncu rolleri/partilerini diğer oyunculara açıkla
         Self::reveal_roles(&mut players);
 
-        // Create the board; shuffle the deck
+        // Tahtayı oluştur; desteyi karıştır
         let board = Board::new(num_players);
         let mut deck = Deck::new(opts.communists);
         deck.shuffle(&board, &mut rng);
 
-        // Return the new game
+        // Yeni oyunu döndür
         Ok(Game {
             opts,
             players,
@@ -217,11 +286,12 @@ impl Game {
         })
     }
 
-    /// Gets the game options.
+    /// Oyun seçeneklerini alır.
     pub fn options(&self) -> GameOptions {
         self.opts
     }
 
+    /// Oyuncuların rollerini açıkladığı fonksiyon.
     fn reveal_roles(players: &mut [Player]) {
         use Role::*;
         let fascists = players.iter().filter(|p| p.role == Fascist).count();
@@ -231,17 +301,17 @@ impl Game {
                 let (p1, p2) = (&players[i], &players[j]);
                 let adjacent = players_are_adjacent(i, j, players.len());
                 let result = match (p1.role, p2.role) {
-                    // Everyone knows their own role, but exclude it from the list
+                    // Herkes kendi rolünü bilir, ancak listeye dahil edilmez
                     _ if i == j => InvestigationResult::Unknown,
-                    // Ordinary fascists know all the fascists' identities
+                    // Sıradan faşistler tüm faşistlerin kimliklerini bilir
                     (Fascist, Fascist | Hitler | Monarchist) => InvestigationResult::Role(p2.role),
-                    // In smaller games, Hitler knows who the other fascist is
+                    // Küçük oyunlarda Hitler diğer faşistin kim olduğunu bilir
                     (Hitler, Fascist) if fascists < 2 => InvestigationResult::Role(p2.role),
-                    // Ordinary communists know all the communists' identities
+                    // Sıradan komünistler tüm komünistlerin kimliklerini bilir
                     (Communist, Communist | Anarchist) => InvestigationResult::Role(p2.role),
-                    // The centrists know each other
+                    // Merkezdekiler birbirlerini bilir
                     (Centrist, Centrist) => InvestigationResult::Role(p2.role),
-                    // The capitalist knows the party of the players either side of them
+                    // Kapitalist, kendisinin yanındaki oyuncuların partisini bilir
                     (Capitalist, _) if adjacent => InvestigationResult::Party(p2.party()),
                     _ => InvestigationResult::Unknown,
                 };
@@ -250,12 +320,12 @@ impl Game {
         }
     }
 
-    /// Gets the player names.
+    /// Oyuncu isimlerini alır.
     pub fn player_names(&self) -> impl Iterator<Item = &'_ str> {
         self.players.iter().map(|p| &p.name[..])
     }
 
-    /// Finds a player with the given name.
+    /// Verilen isme sahip oyuncuyu bulur.
     pub fn find_player(&self, name: &str) -> Result<usize, GameError> {
         self.players
             .iter()
@@ -263,7 +333,7 @@ impl Game {
             .ok_or(GameError::PlayerNotFound)
     }
 
-    /// Called when a player is ready to end the night round.
+    /// Bir oyuncu gece turunu bitirmeye hazır olduğunda çağrılır.
     pub fn end_night_round(&mut self, player: usize) -> Result<(), GameError> {
         self.check_player_index(player)?;
         let GameState::Night { confirmations } = &mut self.state else {
@@ -276,7 +346,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when a player is ready to end the card reveal.
+    /// Bir oyuncu kart açma işlemini bitirmeye hazır olduğunda çağrılır.
     pub fn end_card_reveal(&mut self, player: Option<usize>) -> Result<(), GameError> {
         let GameState::CardReveal { result, chaos, confirmations, board_ready } = &mut self.state else {
             return Err(GameError::InvalidAction);
@@ -288,13 +358,13 @@ impl Game {
             *board_ready = true;
         }
 
-        // Skip player confirmations if the game is over
+        // Eğer oyun bitmişse oyuncu onaylarını atla
         let players_ready = confirmations.can_proceed() || self.board.is_winning_card(*result);
         if !players_ready || !*board_ready {
             return Ok(());
         }
 
-        // Play the card
+        // Kartı oyna
         let (result, chaos) = (*result, *chaos);
         self.board.play_card(result);
         if self.check_game_over() {
@@ -309,7 +379,7 @@ impl Game {
         Ok(())
     }
 
-    /// Ends the legislative session.
+    /// Yasama oturumunu bitirir.
     pub fn end_legislative_session(&mut self) -> Result<(), GameError> {
         let GameState::LegislativeSession { turn, .. } = &mut self.state else {
             return Err(GameError::InvalidAction);
@@ -323,7 +393,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when a player casts their vote.
+    /// Bir oyuncu oy kullandığında çağrılır.
     pub fn cast_vote(&mut self, player: usize, vote: bool) -> Result<(), GameError> {
         self.check_player_index(player)?;
         let GameState::Election { chancellor, votes, .. } = &mut self.state else {
@@ -336,7 +406,7 @@ impl Game {
         Ok(())
     }
 
-    /// Called when a player chooses another player.
+    /// Bir oyuncu başka bir oyuncuyu seçtiğinde çağrılır.
     pub fn choose_player(&mut self, player: usize, other: usize) -> Result<(), GameError> {
         self.check_player_index(player)?;
         self.check_player_index(other)?;
@@ -447,7 +517,6 @@ impl Game {
             _ => Err(GameError::InvalidAction),
         }
     }
-
     /// Called when the board has finished revealing the election result.
     pub fn end_voting(&mut self) -> Result<(), GameError> {
         match &self.state {

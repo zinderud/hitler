@@ -1,8 +1,13 @@
 use super::{government::Government, party::Party, player::InvestigationResult, Game, GameState, WinCondition};
+// Üst modülden gerekli yapıları ve türleri kullanıyoruz.
+
 use crate::game::{
     executive_power::ExecutiveAction, player::Role, AssassinationState, LegislativeSessionTurn, VetoStatus,
 };
+// crate::game modülünden gerekli yapıları ve türleri kullanıyoruz.
+
 use serde::{Deserialize, Serialize};
+// Serde kütüphanesini kullanarak veri serileştirme ve seriden çıkarma işlemleri yapıyoruz.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct BoardUpdate {
@@ -15,6 +20,7 @@ pub struct BoardUpdate {
     pub last_government: Option<Government>,
     pub prompt: Option<BoardPrompt>,
 }
+// Oyun tahtasının güncellemelerini tutan yapı.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PlayerUpdate {
@@ -23,6 +29,7 @@ pub struct PlayerUpdate {
     pub others: Vec<InvestigationResult>,
     pub prompt: Option<PlayerPrompt>,
 }
+// Oyuncunun güncellemelerini tutan yapı.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PublicPlayer {
@@ -30,6 +37,7 @@ pub struct PublicPlayer {
     pub alive: bool,
     pub not_hitler: bool,
 }
+// Oyuncunun halka açık bilgilerini tutan yapı.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
@@ -88,6 +96,7 @@ pub enum BoardPrompt {
         outcome: WinCondition,
     },
 }
+// Oyun tahtası için istemciye gönderilecek bildirim türleri.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
@@ -127,28 +136,21 @@ pub enum PlayerPrompt {
         won: bool,
     },
 }
+// Oyuncu için istemciye gönderilecek bildirim türleri.
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum ChoosePlayerKind {
-    /// The player is selecting a chancellor nominee
     NominateChancellor,
-    /// The player is selecting the next presidential nominee
     NominatePresident,
-    /// The player is selecting the first chancellor in a monarchist election
     MonarchistFirstChancellor,
-    /// The player is selecting the second chancellor in a monarchist election
     MonarchistSecondChancellor,
-    /// The player is voting on a chancellor
     VoteChancellor,
-    /// The player is choosing another player to investigate their party membership
     Investigate,
-    /// The player is choosing another player to execute
     Execute,
-    /// The player is choosing another player to attempt to convert to communism
     Radicalise,
-    /// The player is choosing which player must reveal their party membership to all
     Confession,
 }
+// Oyuncunun seçebileceği oyuncu türleri.
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum LegislativePhase {
@@ -158,6 +160,7 @@ pub enum LegislativePhase {
     VetoApproved,
     VetoRejected,
 }
+// Yasama oturumu aşamaları.
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum CommunistSessionPhase {
@@ -166,20 +169,17 @@ pub enum CommunistSessionPhase {
     Leaving,
     Reveal,
 }
+// Komünist oturum aşamaları.
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum RadicalisationResult {
-    /// The player is a communist, but no radicalisation was attempted
     NoAttempt,
-    /// The player is a communist, and the radicalisation failed
     Fail,
-    /// The player is a communist, and the radicalisation failed
     Success,
-    /// The player is not a communist, and their role has not changed
     Unchanged,
-    /// The player was not a communist, but has been radicalised
     Radicalised,
 }
+// Radikalleşme sonucu türleri.
 
 impl Game {
     pub fn get_board_update(&self) -> BoardUpdate {
@@ -194,6 +194,7 @@ impl Game {
             prompt: Some(self.get_board_prompt()),
         }
     }
+    // Oyun tahtası güncellemesini döndüren fonksiyon.
 
     pub fn get_player_update(&self, player_idx: usize) -> PlayerUpdate {
         let player = &self.players[player_idx];
@@ -204,6 +205,7 @@ impl Game {
             prompt: self.get_player_prompt(player_idx),
         }
     }
+    // Oyuncu güncellemesini döndüren fonksiyon.
 
     pub fn get_public_players(&self) -> Vec<PublicPlayer> {
         self.players
@@ -215,6 +217,7 @@ impl Game {
             })
             .collect()
     }
+    // Halka açık oyuncu bilgilerini döndüren fonksiyon.
 
     pub fn get_board_prompt(&self) -> BoardPrompt {
         use GameState::*;
@@ -336,6 +339,7 @@ impl Game {
             GameOver(outcome) => BoardPrompt::GameOver { outcome: *outcome },
         }
     }
+    // Oyun tahtası için istemciye gönderilecek bildirimleri döndüren fonksiyon.
 
     pub fn get_player_prompt(&self, player: usize) -> Option<PlayerPrompt> {
         use GameState::*;
@@ -498,4 +502,5 @@ impl Game {
             }),
         }
     }
+    // Oyuncu için istemciye gönderilecek bildirimleri döndüren fonksiyon.
 }

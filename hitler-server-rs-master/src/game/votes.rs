@@ -1,93 +1,95 @@
 use serde::{Deserialize, Serialize};
+// Serde kütüphanesini kullanarak veri serileştirme ve seriden çıkarma işlemleri yapıyoruz.
 
 use super::MAX_PLAYERS;
+// Üst modülden MAX_PLAYERS sabitini kullanıyoruz.
 
-/// Tracks the vote of each player.
+/// Her bir oyuncunun oyunu takip eder.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct Votes {
-    num_players: usize,
-    votes: [Option<bool>; MAX_PLAYERS],
+    num_players: usize, // Oyuncu sayısı.
+    votes: [Option<bool>; MAX_PLAYERS], // Her bir oyuncunun oyunu tutan dizi.
 }
 
 impl Votes {
-    /// Creates a new `Votes`.
+    /// Yeni bir `Votes` oluşturur.
     pub fn new(num_players: usize) -> Self {
-        let votes = [None; MAX_PLAYERS];
+        let votes = [None; MAX_PLAYERS]; // Oyları None olarak başlat.
         Self { num_players, votes }
     }
 
-    /// Returns whether the given player has cast their vote.
+    /// Verilen oyuncunun oy kullanıp kullanmadığını döndürür.
     pub fn has_cast(&self, player_idx: usize) -> bool {
         self.votes[player_idx].is_some()
     }
 
-    /// Records the vote of a player.
+    /// Bir oyuncunun oyunu kaydeder.
     pub fn vote(&mut self, player_idx: usize, vote: bool) {
         self.votes[player_idx] = Some(vote);
     }
 
-    /// If all votes are counted, returns the outcome, otherwise returns `None`.
+    /// Tüm oylar sayıldıysa sonucu döndürür, aksi takdirde `None` döner.
     pub fn outcome(&self) -> Option<bool> {
-        let yes = self.votes.iter().filter(|v| **v == Some(true)).count();
-        let no = self.votes.iter().filter(|v| **v == Some(false)).count();
+        let yes = self.votes.iter().filter(|v| **v == Some(true)).count(); // Evet oylarını say.
+        let no = self.votes.iter().filter(|v| **v == Some(false)).count(); // Hayır oylarını say.
         if std::env::var("QUICK_MODE").is_ok() {
-            (yes + no > 0).then_some(yes > no)
+            (yes + no > 0).then_some(yes > no) // QUICK_MODE aktifse, en az bir oy varsa sonucu kontrol et.
         } else {
-            (yes + no >= self.num_players).then_some(yes > no)
+            (yes + no >= self.num_players).then_some(yes > no) // QUICK_MODE aktif değilse, tüm oylar varsa sonucu kontrol et.
         }
     }
 
-    /// Gets the votes of each player.
+    /// Her bir oyuncunun oylarını döner.
     pub fn votes(&self) -> &[Option<bool>] {
         &self.votes
     }
 }
 
-/// Tracks the vote of each player during a monarchist election.
+/// Monarşist bir seçim sırasında her bir oyuncunun oyunu takip eder.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct MonarchistVotes {
-    num_players: usize,
-    /// The index of the player who is the monarchist
+    num_players: usize, // Oyuncu sayısı.
+    /// Monarşist olan oyuncunun indeksi
     monarchist: usize,
-    /// `true` is a vote for the monarchist's chancellor, and `false` is for the other
-    votes: [Option<bool>; MAX_PLAYERS],
+    /// `true` monarşistin şansölyesine verilen oy, `false` diğerine verilen oy.
+    votes: [Option<bool>; MAX_PLAYERS], // Oyları tutan dizi.
 }
 
 impl MonarchistVotes {
-    /// Creates a new `MonarchistVotes`.
+    /// Yeni bir `MonarchistVotes` oluşturur.
     pub fn new(num_players: usize, monarchist: usize) -> Self {
-        let votes = [None; MAX_PLAYERS];
+        let votes = [None; MAX_PLAYERS]; // Oyları None olarak başlat.
         Self { num_players, monarchist, votes }
     }
 
-    /// Returns whether the given player has cast their vote.
+    /// Verilen oyuncunun oy kullanıp kullanmadığını döndürür.
     pub fn has_cast(&self, player_idx: usize) -> bool {
         self.votes[player_idx].is_some()
     }
 
-    /// Records the vote of a player, where `true` signifies the monarchist's selection.
+    /// Bir oyuncunun oyunu kaydeder, `true` monarşistin seçimini belirtir.
     pub fn vote(&mut self, player_idx: usize, vote: bool) {
         self.votes[player_idx] = Some(vote);
     }
 
-    /// If all votes are counted, returns the outcome, otherwise returns `None`.
-    /// A result of `true` signifies the monarchist's selection has won.
+    /// Tüm oylar sayıldıysa sonucu döndürür, aksi takdirde `None` döner.
+    /// `true` sonucu monarşistin seçiminin kazandığını belirtir.
     pub fn outcome(&self) -> Option<bool> {
         use std::cmp::Ordering::*;
-        let yes = self.votes.iter().filter(|v| **v == Some(true)).count();
-        let no = self.votes.iter().filter(|v| **v == Some(false)).count();
+        let yes = self.votes.iter().filter(|v| **v == Some(true)).count(); // Evet oylarını say.
+        let no = self.votes.iter().filter(|v| **v == Some(false)).count(); // Hayır oylarını say.
         if std::env::var("QUICK_MODE").is_ok() {
-            (yes + no > 0).then_some(yes > no)
+            (yes + no > 0).then_some(yes > no) // QUICK_MODE aktifse, en az bir oy varsa sonucu kontrol et.
         } else {
             (yes + no >= self.num_players).then(|| match yes.cmp(&no) {
-                Less => false,
-                Greater => true,
-                Equal => self.votes[self.monarchist].unwrap_or(true),
+                Less => false, // Hayır oyları daha fazla ise sonuç false.
+                Greater => true, // Evet oyları daha fazla ise sonuç true.
+                Equal => self.votes[self.monarchist].unwrap_or(true), // Eşitse, monarşistin oyu belirleyici.
             })
         }
     }
 
-    /// Gets the votes of each player.
+    /// Her bir oyuncunun oylarını döner.
     pub fn votes(&self) -> &[Option<bool>] {
         &self.votes
     }
