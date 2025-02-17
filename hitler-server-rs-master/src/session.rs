@@ -11,30 +11,30 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tokio::sync::watch;
 
-/// Manages all the game sessions running on the server.
+/// Sunucuda çalışan tüm oyun oturumlarını yönetir.
 pub struct SessionManager {
     sessions: DashMap<String, SessionHandle>,
     db: Database,
 }
 
-/// The databases that games are persisted to.
+/// Oyunların kalıcı olarak saklandığı veritabanları.
 #[derive(Clone)]
 struct Database {
     game: sled::Tree,
     archive: sled::Tree,
 }
 
-/// A single game session.
+/// Tek bir oyun oturumu.
 pub struct Session {
-    /// The game ID.
+    /// Oyun kimliği.
     id: String,
-    /// The game itself.
+    /// Oyun.
     game: Game,
-    /// Channel for sending game state updates.
+    /// Oyun durumu güncellemelerini göndermek için kanal.
     updates: watch::Sender<GameUpdate>,
-    /// The databases.
+    /// Veritabanları.
     db: Database,
-    /// Timestamp of the last time this session was interacted with.
+    /// Bu oturumla en son etkileşimde bulunulan zaman damgası.
     last_ts: Instant,
 }
 
@@ -43,21 +43,23 @@ pub type SessionHandle = Arc<Mutex<Session>>;
 #[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize)]
 enum Game {
+    /// Oyuncuların katılabileceği lobi durumundaki bir oyunu temsil eder.
     Lobby {
         options: GameOptions,
         players: Vec<String>,
         min_players: usize,
         max_players: usize,
     },
+    /// Oynanan aktif bir oyunu temsil eder.
     Playing {
-        /// The game itself.
+        /// Oyun.
         game: GameInner,
-        /// Timestamp that the game was created.
+        /// Oyunun oluşturulduğu zaman damgası.
         started_ts: DateTime<Utc>,
-        /// Whether this game has been archived.
+        /// Bu oyunun arşivlenip arşivlenmediği.
         archived: bool,
     },
-    #[allow(clippy::enum_variant_names)]
+    /// Sona ermiş bir oyunu temsil eder.
     GameOver,
 }
 
